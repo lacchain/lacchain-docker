@@ -1,0 +1,5 @@
+.idea/
+*.iml
+*.lock
+
+docker-compose.yml

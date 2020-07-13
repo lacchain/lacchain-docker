@@ -1,0 +1,94 @@
+version: '3.4'
+
+services:
+
+  generator:
+    build:
+      context: generator/.
+    environment:
+      - WRITERS=1
+      - VALIDATORS=1
+    volumes:
+      - ./volumes/validators:/validators
+      - ./volumes/writers:/writers
+
+  bootnode:
+    build:
+      context: besu/.
+      args:
+        BESU_VERSION: ${BESU_VERSION}
+    image: lacchain-network/besu:${BESU_VERSION}
+    environment:
+      - BESU_PUBLIC_KEY_DIRECTORY=${BESU_PUBLIC_KEY_DIRECTORY}
+    entrypoint: /opt/besu/bootnode_start.sh
+    command: &base_options [
+      "--config-file=/config/config.toml",
+      "--genesis-file=/config/genesis.json",
+      "--node-private-key-file=/opt/besu/keys/key",
+      "--rpc-http-api=WEB3,ETH,NET,IBFT,ADMIN",
+      "--rpc-ws-api=WEB3,ETH,NET,IBFT,ADMIN",
+    ]
+    volumes:
+      - ./:${BESU_PUBLIC_KEY_DIRECTORY}
+      - ./config/besu/config.toml:/config/config.toml
+      - ./config/besu/genesis.json:/config/genesis.json
+      - ./volumes/bootnode/keys:/opt/besu/keys
+      - ./volumes/bootoonode/data:/opt/besu/data
+    depends_on:
+      - generator
+    networks:
+      sample:
+        ipv4_address: 172.24.2.5
+
+  validator:
+    image: lacchain-network/besu:${BESU_VERSION}
+    environment:
+      - BESU_PUBLIC_KEY_DIRECTORY=${BESU_PUBLIC_KEY_DIRECTORY}
+    command: *base_options
+    volumes:
+      - ./:${BESU_PUBLIC_KEY_DIRECTORY}
+      - ./config/besu/config.toml:/config/config.toml
+      - ./config/besu/genesis.json:/config/genesis.json
+      - ./config/besu/networkFiles/validator2/keys:/opt/besu/keys
+      - ./data/validator:/opt/besu/data
+    depends_on:
+      - bootnode
+    networks:
+      sample:
+        ipv4_address: 172.24.2.6
+
+  writer:
+    image: lacchain-network/besu:${BESU_VERSION}
+    environment:
+      - BESU_PUBLIC_KEY_DIRECTORY=${BESU_PUBLIC_KEY_DIRECTORY}
+    command: *base_options
+    volumes:
+      - ./:${BESU_PUBLIC_KEY_DIRECTORY}
+      - ./config/besu/config.toml:/config/config.toml
+      - ./config/besu/genesis.json:/config/genesis.json
+      - ./config/besu/networkFiles/node1/keys:/opt/besu/keys
+      - ./data/writer:/opt/besu/data
+      - bootnode./s
+    ports:
+      - 8545:8545/tcp
+    networks:
+      sample:
+        ipv4_address: 172.24.2.7
+
+  explorer:
+    build: explorer/.
+    image: lacchain-network/block-explorer-light:${BESU_VERSION}
+    depends_on:
+      - writer
+    ports:
+      - 25000:80/tcp
+    networks:
+      sample:
+        ipv4_address: 172.24.2.15
+
+networks:
+  sample:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.2.0/27

@@ -1,0 +1,17 @@
+{
+  "name": "lacchain-keygen",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "node --experimental-modules ./index.js"
+  },
+  "dependencies": {
+    "ethereumjs-util": "^7.0.2",
+    "randomstring": "^1.1.5",
+    "rimraf": "^3.0.2"
+  }
+}
