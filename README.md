@@ -28,10 +28,9 @@ All the architecture diagrams below generally use the POA (IBFT2) setup, to view
 ### Start Services and Network
 `./run.sh` starts all the docker containers in POA mode
 
-`./run.sh -c ibft2` starts all the docker containers in POA mode using the IBFT2 Consensus algorithm
+`./run.sh -v -w` starts all the docker containers in POA mode using the IBFT2 Consensus algorithm
 
-There is an optional `-e` parameter which provides centralised logging functionality via ELK 
-
+There are two parameters `-v` and `-w` parameters which specify the number of validators and writers nodes, respectively. 
 
 #### Basic 4 Node Network with Block Explorer and Prometheus & Grafana to track the progress of your chain
 
