@@ -65,5 +65,9 @@ rm -rf permissioning-dapp/build
 rm -rf permissioning-smart-contracts
 rm -f config/besu/ibft2GenesisPermissioning.json
 
+rm -R ./volumes/bootnode/data
+rm -R ./volumes/validators/*
+rm -R ./volumes/writers/*
+
 rm ${LOCK_FILE}
 echo "Lock file ${LOCK_FILE} removed"
