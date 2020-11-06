@@ -71,11 +71,15 @@ w) WRITERS=${OPTARG};;
 esac
 done
 
+userid=$(id -u)
+groupid=$(id -g)
+
 cat >> docker-compose.yml <<EOF
 version: '3.4'
 
 services:
   generator:
+    user: "${userid}:${groupid}"
     build:
       context: generator/.
     environment:
@@ -86,6 +90,7 @@ services:
       - ./volumes/writers:/writers
 
   bootnode:
+    user: "${userid}:${groupid}"
     build:
       context: besu/.
       args:
@@ -119,6 +124,7 @@ do
 cat >> docker-compose.yml <<EOF
 
   validator$v:
+    user: "${userid}:${groupid}"
     image: lacchain-network/besu:${BESU_VERSION}
     environment:
       - BESU_PUBLIC_KEY_DIRECTORY=${BESU_PUBLIC_KEY_DIRECTORY}
@@ -142,6 +148,7 @@ do
 cat >> docker-compose.yml <<EOF
 
   writer$w:
+    user: "${userid}:${groupid}"
     image: lacchain-network/besu:${BESU_VERSION}
     environment:
       - BESU_PUBLIC_KEY_DIRECTORY=${BESU_PUBLIC_KEY_DIRECTORY}
